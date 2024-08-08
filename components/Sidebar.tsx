@@ -10,6 +10,9 @@ import {
   MessageSquare,
   ImageIcon,
   VideoIcon,
+  MusicIcon,
+  Code,
+  Settings,
 } from "lucide-react";
 
 const montserrat = Montserrat({ weight: "600", subsets: ["latin"] });
@@ -38,6 +41,24 @@ const routes = [
     icon: VideoIcon,
     href: "/dashboard",
     color: "text-orange-700",
+  },
+
+  {
+    label: "Music Generation",
+    icon: MusicIcon,
+    href: "/dashboard",
+    color: "text-emerald-500",
+  },
+  {
+    label: "Code Generation",
+    icon: Code,
+    href: "/dashboard",
+    color: "text-green-700",
+  },
+  {
+    label: "Settings",
+    icon: Settings,
+    href: "/dashboard",
   },
 ];
 
