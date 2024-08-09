@@ -6,7 +6,9 @@ import axios from 'axios';
 import Heading from '@/components/Heading';
 import { Empty } from '@/components/Empty';
 import { Loader } from '@/components/Loader';
-import { MessageSquare } from 'lucide-react';
+import { UserAvatar } from '@/components/User-avatar';
+import { BotAvatar } from '@/components/Bot-avatar';
+import { Bot, MessageSquare } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { formSchema } from './constants';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -137,7 +139,8 @@ const ConversationPage = () => {
                     : 'bg-muted'
                 )}
               >
-                {message.content}
+                {message.role === 'user' ? <UserAvatar /> : <BotAvatar />}
+                <p className="text-sm">{message.content}</p>
               </div>
             ))}
           </div>
