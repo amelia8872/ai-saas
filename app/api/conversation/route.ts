@@ -1,21 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
+import { getAuth } from '@clerk/nextjs/server';
 
 const systemPrompt = `HeadStarter Project`;
 
 export async function POST(req: NextRequest) {
   const openai = new OpenAI();
-  const data = await req.json();
+  const { userId } = getAuth(req);
 
-  // if (!Array.isArray(data)) {
-  //   return NextResponse.json(
-  //     { error: 'Invalid request body. Expected an array of messages.' },
-  //     { status: 400 }
-  //   );
-  // }
+  if (!userId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  if (!process.env.OPENAI_API_KEY) {
+    return NextResponse.json(
+      { error: 'OpenAI API key not configured' },
+      { status: 500 }
+    );
+  }
+
+  const body = await req.json();
+
+  if (!body || !Array.isArray(body) || body.length === 0) {
+    return NextResponse.json(
+      { error: 'No messages provided' },
+      { status: 400 }
+    );
+  }
 
   const completion = await openai.chat.completions.create({
-    messages: [{ role: 'system', content: systemPrompt }, ...data],
+    messages: [{ role: 'system', content: systemPrompt }, ...body],
     stream: true,
     model: 'gpt-4o-mini',
   });
