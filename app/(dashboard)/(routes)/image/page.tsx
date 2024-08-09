@@ -8,7 +8,7 @@ import { Empty } from '@/components/Empty';
 import { Loader } from '@/components/Loader';
 import { UserAvatar } from '@/components/User-avatar';
 import { BotAvatar } from '@/components/Bot-avatar';
-import { Bot, Code } from 'lucide-react';
+import { Bot, Image } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { formSchema } from './constants';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -18,9 +18,8 @@ import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
-import ReactMarkdown from 'react-markdown';
 
-const CodePage = () => {
+const ImagePage = () => {
   const [messages, setMessages] = useState([]);
 
   const router = useRouter();
@@ -35,7 +34,7 @@ const CodePage = () => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const response = await fetch('/api/code', {
+      const response = await fetch('/api/conversation', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -81,11 +80,11 @@ const CodePage = () => {
   return (
     <div>
       <Heading
-        title="Code Generation"
-        description="Generate code using descriptive text"
-        icon={Code}
-        iconColor="text-green-700"
-        bgColor="bg-green-700/10"
+        title="Image Generation"
+        description="Turn your prompts into images"
+        icon={Image}
+        iconColor="text-pink-700"
+        bgColor="bg-pink-700/10"
       />
       <div className="px-4 lg:px-8">
         <div>
@@ -102,7 +101,7 @@ const CodePage = () => {
                       <Input
                         className="border-0 outline-none focus-visible:ring-0 focus-visible:ring-transparent"
                         disabled={isLoading}
-                        placeholder="Simple toggle button using react hooks."
+                        placeholder="How do I calculate the radius of a circle?"
                         {...field}
                       />
                     </FormControl>
@@ -141,21 +140,7 @@ const CodePage = () => {
                 )}
               >
                 {message.role === 'user' ? <UserAvatar /> : <BotAvatar />}
-                <ReactMarkdown
-                  components={{
-                    pre: ({ node, ...props }) => (
-                      <div className="overflow-auto w-full my-2 bg-black/10 p-2 rounded-lg">
-                        <pre {...props} />
-                      </div>
-                    ),
-
-                    code: ({ node, ...props }) => (
-                      <code className="bg-black/10 p-1 rounded-lg" {...props} />
-                    ),
-                  }}
-                >
-                  {message.content || ''}
-                </ReactMarkdown>
+                <p className="text-sm">{message.content}</p>
               </div>
             ))}
           </div>
@@ -165,4 +150,4 @@ const CodePage = () => {
   );
 };
 
-export default CodePage;
+export default ImagePage;
