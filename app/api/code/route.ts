@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { getAuth } from '@clerk/nextjs/server';
+import { increaseApiLimit, checkApiLimit } from '@/lib/api-limit';
 
 const systemPrompt =
   'You are a code generator. You must answer only in markdown code snippets. Use code comments for explanation.';
@@ -30,12 +31,19 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  const freeTrial = await checkApiLimit();
+
+  if (!freeTrial) {
+    return new NextResponse('Free trial has expired.', { status: 403 });
+  }
+
   const completion = await openai.chat.completions.create({
     messages: [{ role: 'system', content: systemPrompt }, ...body],
     stream: true,
     model: 'gpt-4o-mini',
   });
 
+  await increaseApiLimit();
   const stream = new ReadableStream({
     async start(controller) {
       const encoder = new TextEncoder();

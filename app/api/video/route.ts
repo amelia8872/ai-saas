@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Replicate from 'replicate';
 import { getAuth } from '@clerk/nextjs/server';
+import { increaseApiLimit, checkApiLimit } from '@/lib/api-limit';
 
 const replicate = new Replicate({
   auth: process.env.REPLICATE_API_TOKEN,
@@ -23,6 +24,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const freeTrial = await checkApiLimit();
+
+    if (!freeTrial) {
+      return new NextResponse('Free trial has expired.', { status: 403 });
+    }
+
     const input = {
       prompt: 'Clown fish swimming in a coral reef',
     };
@@ -32,6 +39,7 @@ export async function POST(req: NextRequest) {
       { input }
     );
     // console.log(response);
+    await increaseApiLimit();
 
     return NextResponse.json(response);
   } catch (error) {
