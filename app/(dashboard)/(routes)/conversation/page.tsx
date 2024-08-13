@@ -18,9 +18,16 @@ import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
+import { useProModal } from '@/hooks/use-pro-modal';
+
+type Message = {
+  role: 'user' | 'assistant';
+  content: string;
+};
 
 const ConversationPage = () => {
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const proModal = useProModal();
 
   const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
@@ -42,7 +49,7 @@ const ConversationPage = () => {
         body: JSON.stringify([{ role: 'user', content: values.prompt }]),
       });
 
-      console.log(response.body);
+      // console.log(response.body);
 
       if (!response.ok) {
         throw new Error('Failed to generate response');
@@ -71,7 +78,9 @@ const ConversationPage = () => {
 
       form.reset();
     } catch (error: any) {
-      console.error('Error:', error);
+      if (error?.response?.status === 403) {
+        proModal.onOpen();
+      }
     } finally {
       router.refresh();
     }
