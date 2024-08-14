@@ -27,11 +27,13 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
-import { Card, CardFooter } from '@/components/ui/card'; // Assuming CardFooter exists in the card component.
+import { Card, CardFooter } from '@/components/ui/card';
+import { useProModal } from '@/hooks/use-pro-modal';
 
 const ImagePage = () => {
   const router = useRouter();
   const [images, setImages] = useState<string[]>([]);
+  const proModal = useProModal();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -56,6 +58,10 @@ const ImagePage = () => {
       form.reset();
     } catch (error: any) {
       console.error('Error:', error);
+      if (error?.response?.status === 403) {
+        console.log('403 error detected, opening modal...');
+        proModal.onOpen();
+      }
     } finally {
       router.refresh();
     }

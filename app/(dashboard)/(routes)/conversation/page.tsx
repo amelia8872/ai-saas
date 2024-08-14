@@ -68,11 +68,9 @@ const ConversationPage = () => {
       form.reset();
     } catch (error: any) {
       console.log('Error status:', error.response?.status);
-      if (error.response?.status === 403) {
+      if (error?.response?.status === 403) {
         console.log('403 error detected, opening modal...');
         proModal.onOpen();
-      } else {
-        console.error('An unexpected error occurred:', error);
       }
     } finally {
       router.refresh();
