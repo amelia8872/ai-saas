@@ -42,33 +42,44 @@ const CodePage = () => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const response = await fetch('/api/code', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify([{ role: 'user', content: values.prompt }]),
-      });
+      // const response = await fetch('/api/code', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify([{ role: 'user', content: values.prompt }]),
+      // });
 
-      console.log(response.body);
+      // console.log(response.body);
 
-      if (!response.ok) {
-        throw new Error('Failed to generate response');
-      }
+      const response = await axios.post('/api/conversation', [
+        { role: 'user', content: values.prompt },
+      ]);
 
-      const reader = response.body?.getReader();
+      console.log('API response:', response.data);
 
-      if (!reader) {
-        throw new Error('Failed to read response body');
-      }
+      // if (!response.ok) {
+      //   throw new Error('Failed to generate response');
+      // }
 
-      const decoder = new TextDecoder();
-      let assistantMessage = '';
+      // const reader = response.body?.getReader();
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        assistantMessage += decoder.decode(value, { stream: true });
+      // if (!reader) {
+      //   throw new Error('Failed to read response body');
+      // }
+
+      // const decoder = new TextDecoder();
+      // let assistantMessage = '';
+
+      // while (true) {
+      //   const { done, value } = await reader.read();
+      //   if (done) break;
+      //   assistantMessage += decoder.decode(value, { stream: true });
+      // }
+
+      const assistantMessage = response.data;
+      if (!assistantMessage) {
+        throw new Error('No assistant message found in response');
       }
 
       setMessages((prevMessages) => [

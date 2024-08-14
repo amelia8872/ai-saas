@@ -16,10 +16,12 @@ import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
+import { useProModal } from '@/hooks/use-pro-modal';
 
 const MusicPage = () => {
   const router = useRouter();
   const [music, setMusic] = useState();
+  const proModal = useProModal();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -40,6 +42,10 @@ const MusicPage = () => {
       form.reset();
     } catch (error: any) {
       console.error('Error:', error);
+      if (error?.response?.status === 403) {
+        console.log('403 error detected, opening modal...');
+        proModal.onOpen();
+      }
     } finally {
       router.refresh();
     }
