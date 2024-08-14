@@ -41,33 +41,22 @@ const ConversationPage = () => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const response = await fetch('/api/conversation', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify([{ role: 'user', content: values.prompt }]),
-      });
+      // const response = await fetch('/api/conversation', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify([{ role: 'user', content: values.prompt }]),
+      // });
+      const response = await axios.post('/api/conversation', [
+        { role: 'user', content: values.prompt },
+      ]);
 
-      // console.log(response.body);
+      console.log('API response:', response.data);
 
-      if (!response.ok) {
-        throw new Error('Failed to generate response');
-      }
-
-      const reader = response.body?.getReader();
-
-      if (!reader) {
-        throw new Error('Failed to read response body');
-      }
-
-      const decoder = new TextDecoder();
-      let assistantMessage = '';
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        assistantMessage += decoder.decode(value, { stream: true });
+      const assistantMessage = response.data;
+      if (!assistantMessage) {
+        throw new Error('No assistant message found in response');
       }
 
       setMessages((prevMessages) => [
@@ -78,8 +67,12 @@ const ConversationPage = () => {
 
       form.reset();
     } catch (error: any) {
-      if (error?.response?.status === 403) {
+      console.log('Error status:', error.response?.status);
+      if (error.response?.status === 403) {
+        console.log('403 error detected, opening modal...');
         proModal.onOpen();
+      } else {
+        console.error('An unexpected error occurred:', error);
       }
     } finally {
       router.refresh();
