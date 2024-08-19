@@ -1,10 +1,11 @@
 import { LandingNavbar } from '@/components/Landing-navbar';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 export const LandingPage = () => {
   return (
-    <div className="h-full">
+    <div>
       <LandingNavbar />
-      hi
     </div>
   );
 };
