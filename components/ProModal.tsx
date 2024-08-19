@@ -1,5 +1,7 @@
 'use client';
 
+import { toast } from 'react-hot-toast';
+
 import {
   Dialog,
   DialogContent,
@@ -73,7 +75,7 @@ export const ProModal = () => {
 
       window.location.href = (await response).data.url;
     } catch (error: any) {
-      console.error('STRIPE_CLIENT_ERROR:', error);
+      toast.error('Something went wrong. Please try again later.');
     } finally {
       setLoading(false);
     }
@@ -113,6 +115,7 @@ export const ProModal = () => {
         </DialogHeader>
         <DialogFooter>
           <Button
+            disabled={loading}
             onClick={onSubscribe}
             size="lg"
             variant="premium"

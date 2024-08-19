@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { getAuth } from '@clerk/nextjs/server';
 import { increaseApiLimit, checkApiLimit } from '@/lib/api-limit';
+import { checkSubscription } from '@/lib/subscription';
 
 const systemPrompt =
   'You are a code generator. You must answer only in markdown code snippets. Use code comments for explanation.';
@@ -32,8 +33,9 @@ export async function POST(req: NextRequest) {
   }
 
   const freeTrial = await checkApiLimit();
+  const isPro = await checkSubscription();
 
-  if (!freeTrial) {
+  if (!freeTrial && !isPro) {
     return new NextResponse('Free trial has expired.', { status: 403 });
   }
 
@@ -43,7 +45,10 @@ export async function POST(req: NextRequest) {
     model: 'gpt-4o-mini',
   });
 
-  await increaseApiLimit();
+  if (!isPro) {
+    await increaseApiLimit();
+  }
+
   const stream = new ReadableStream({
     async start(controller) {
       const encoder = new TextEncoder();

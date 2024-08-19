@@ -2,6 +2,7 @@
 
 import * as z from 'zod';
 import axios from 'axios';
+import { toast } from 'react-hot-toast';
 
 import Heading from '@/components/Heading';
 import { Empty } from '@/components/Empty';
@@ -92,8 +93,10 @@ const CodePage = () => {
     } catch (error: any) {
       console.error('Error:', error);
       if (error?.response?.status === 403) {
-        console.log('403 error detected, opening modal...');
+        // console.log('403 error detected, opening modal...');
         proModal.onOpen();
+      } else {
+        toast.error('An error occurred. Please try again.');
       }
     } finally {
       router.refresh();

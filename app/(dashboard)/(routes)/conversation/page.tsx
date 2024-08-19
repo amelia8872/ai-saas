@@ -2,6 +2,7 @@
 
 import * as z from 'zod';
 import axios from 'axios';
+import { toast } from 'react-hot-toast';
 
 import Heading from '@/components/Heading';
 import { Empty } from '@/components/Empty';
@@ -48,6 +49,8 @@ const ConversationPage = () => {
       //   },
       //   body: JSON.stringify([{ role: 'user', content: values.prompt }]),
       // });
+
+      // throw new Error('Not implemented');
       const response = await axios.post('/api/conversation', [
         { role: 'user', content: values.prompt },
       ]);
@@ -69,8 +72,10 @@ const ConversationPage = () => {
     } catch (error: any) {
       console.log('Error status:', error.response?.status);
       if (error?.response?.status === 403) {
-        console.log('403 error detected, opening modal...');
+        // console.log('403 error detected, opening modal...');
         proModal.onOpen();
+      } else {
+        toast.error('An error occurred. Please try again.');
       }
     } finally {
       router.refresh();

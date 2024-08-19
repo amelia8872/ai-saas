@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { getAuth } from '@clerk/nextjs/server';
 import { increaseApiLimit, checkApiLimit } from '@/lib/api-limit';
+import { checkSubscription } from '@/lib/subscription';
 
-const systemPrompt = `HeadStarter Project`;
+// const systemPrompt = `HeadStarter Project`;
 
 export async function POST(req: NextRequest) {
   const openai = new OpenAI();
@@ -30,18 +31,21 @@ export async function POST(req: NextRequest) {
   }
 
   const freeTrial = await checkApiLimit();
+  const isPro = await checkSubscription();
 
-  if (!freeTrial) {
+  if (!freeTrial && !isPro) {
     return new NextResponse('Free trial has expired.', { status: 403 });
   }
 
   const completion = await openai.chat.completions.create({
-    messages: [{ role: 'system', content: systemPrompt }, ...body],
+    messages: [{ role: 'system', content: 'Generate AI' }, ...body],
     stream: true,
     model: 'gpt-4o-mini',
   });
 
-  await increaseApiLimit();
+  if (!isPro) {
+    await increaseApiLimit();
+  }
 
   const stream = new ReadableStream({
     async start(controller) {

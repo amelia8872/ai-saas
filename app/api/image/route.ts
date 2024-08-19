@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { getAuth } from '@clerk/nextjs/server';
 import { increaseApiLimit, checkApiLimit } from '@/lib/api-limit';
+import { checkSubscription } from '@/lib/subscription';
 
 const systemPrompt = `HeadStarter Project`;
 
@@ -47,8 +48,9 @@ export async function POST(req: NextRequest) {
     }
 
     const freeTrial = await checkApiLimit();
+    const isPro = await checkSubscription();
 
-    if (!freeTrial) {
+    if (!freeTrial && !isPro) {
       return new NextResponse('Free trial has expired.', { status: 403 });
     }
 
@@ -58,7 +60,10 @@ export async function POST(req: NextRequest) {
       n: parseInt(amount, 10),
       size: resolution,
     });
-    await increaseApiLimit();
+
+    if (!isPro) {
+      await increaseApiLimit();
+    }
 
     // console.log(response.data); array of objects,[{url:...}]
 
